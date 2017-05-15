@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ti</title>
+    <script src="./require.js"></script>
+</head>
+<body>
+    <div id="cache"></div>
+</body>
+<script>
+    require.config({
+        baseUrl: "../dist",
+        paths: {
+            "Ti": "ti",
+        }
+    });
+
+    require(['Ti'],function (Ti) {
+        console.log(Ti.isArray([12312,123]));
+        var node = document.getElementById("cache");
+       /* Ti.cache.set(node,"first","hello,world");
+        var a = Ti.cache.get(node,"first");
+        console.log(a);
+
+        Ti.cache.set(node,{second:"sdf"});
+        console.log(Ti.cache.get(node));*/
+        Ti.setCache(node,"first","hello,world");
+        Ti.setCache(node,{second:"sdf"});
+        console.log(Ti.getCache(node));
+    });
+</script>
+</html>
