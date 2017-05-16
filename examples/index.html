@@ -7,6 +7,7 @@
 </head>
 <body>
     <div id="cache"></div>
+    <div id="cache2"></div>
 </body>
 <script>
     require.config({
@@ -19,6 +20,7 @@
     require(['Ti'],function (Ti) {
         console.log(Ti.isArray([12312,123]));
         var node = document.getElementById("cache");
+        var node2 = document.getElementById("cache2");
        /* Ti.cache.set(node,"first","hello,world");
         var a = Ti.cache.get(node,"first");
         console.log(a);
@@ -27,7 +29,14 @@
         console.log(Ti.cache.get(node));*/
         Ti.setCache(node,"first","hello,world");
         Ti.setCache(node,{second:"sdf"});
+        Ti.setCache(node2,"hehe",["hello","world"]);
+        Ti.setCache(node2,{xxx:"sdf"});
         console.log(Ti.getCache(node));
+        console.log(35,Ti.getCache(node2));
+        Ti.removeCache(node,"second");
+        console.log(Ti.getCache(node));
+        console.log(Ti.cache());
+        console.log(Ti.hasData(node));
     });
 </script>
 </html>

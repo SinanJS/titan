@@ -1,5 +1,6 @@
 /**
  * Created by zpc on 2017/5/15.
+ * 缓存系统
  */
 define(["../core"], function (Ti) {
     var Cache = function () {
@@ -7,7 +8,7 @@ define(["../core"], function (Ti) {
     };
     Cache.uid = 1;
     Cache.prototype = {
-        locker: function (owner) {
+        register: function (owner) {
             var account = owner.valueOf(Cache);
             if (typeof account != "string") {
                 account = "ti_" + Cache.uid++;
@@ -28,7 +29,7 @@ define(["../core"], function (Ti) {
             return account;
         },
         set: function (owner, key, value) {
-            var account = this.locker(owner);
+            var account = this.register(owner);
             var cache = this.cache[account];
             if (arguments.length == 2 && typeof key == "object") {
                 if (Ti.isEmptyObject(cache)) {
@@ -45,11 +46,14 @@ define(["../core"], function (Ti) {
         },
         get: function (owner, key) {
             var account = owner.valueOf(Cache);
+            if (!account) {
+                return false;
+            }
             var cache = this.cache[account];
-            if (arguments.length === 1) {
-                return cache;
-            } else if (arguments.length > 1) {
+            if (typeof key == "string") {
                 return cache[key];
+            } else {
+                return cache;
             }
         },
         access: function (fnName, owner, key, value) {
@@ -63,7 +67,26 @@ define(["../core"], function (Ti) {
 
         },
         remove: function (owner, key) {
-
+            var account = owner.valueOf(Cache);
+            if (!account) {
+                return false;
+            }
+            if (typeof key === "string") {
+                delete this.cache[account][key];
+                for (var val in this.cache[account]) {
+                    if (!val) {
+                        delete this.cache[account];
+                    }
+                }
+            } else {
+                delete this.cache[account];
+            }
+        },
+        // 判断该owner是否缓存过数据
+        hasData: function (owner) {
+            if (owner.valueOf(Cache)) {
+                return !Ti.isEmptyObject(this.cache[owner.valueOf(Cache)]);
+            }
         }
     };
     var cache_global = new Cache();
@@ -73,6 +96,15 @@ define(["../core"], function (Ti) {
         },
         getCache: function (owner, key) {
             return cache_global.access("get", owner, key);
+        },
+        removeCache: function (owner, key) {
+            return cache_global.remove(owner, key);
+        },
+        cache: function () {
+            return cache_global.cache;
+        },
+        hasData: function (owner) {
+            return cache_global.hasData(owner);
         }
     });
     return Cache;
