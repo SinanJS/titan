@@ -90,6 +90,7 @@ define(["../core"], function (Ti) {
         }
     };
     var cache_global = new Cache();
+
     Ti.extend({
         setCache: function (owner, key, value) {
             return cache_global.access("set", owner, key, value);
