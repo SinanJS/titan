@@ -106,7 +106,8 @@ define(["../core"], function (Ti) {
         },
         hasData: function (owner) {
             return cache_global.hasData(owner);
-        }
+        },
+
     });
     return Cache;
 });

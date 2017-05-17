@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vdom</title>
+    <script src="./require.js"></script>
+</head>
+<body>
+<div id="test">
+
+</div>
+</body>
+<script>
+    require.config({
+        baseUrl: "../dist",
+        paths: {
+            "Ti": "ti",
+        }
+    });
+
+    require(['Ti'],function (Ti) {
+        var a = Ti.render({
+            el:"#test",
+
+        });
+
+    });
+</script>
+</html>

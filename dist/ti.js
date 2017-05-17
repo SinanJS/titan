@@ -92,6 +92,7 @@ define('core',[], function () {
 
 /**
  * Created by zpc on 2017/5/15.
+ * 缓存系统
  */
 define('core/cache',["../core"], function (Ti) {
     var Cache = function () {
@@ -181,6 +182,7 @@ define('core/cache',["../core"], function (Ti) {
         }
     };
     var cache_global = new Cache();
+
     Ti.extend({
         setCache: function (owner, key, value) {
             return cache_global.access("set", owner, key, value);
@@ -200,9 +202,30 @@ define('core/cache',["../core"], function (Ti) {
     });
     return Cache;
 });
+/**
+ * Created by zpc on 2017/5/17.
+ */
+define('dom/vdom',["../core","../core/cache"],function (Ti,Cache) {
+    var VDom = function (options) {
+        this.el = document.querySelector(options.el);
+        this.$data = options.data;
+    };
+    VDom.prototype = {
+
+    };
+    var dom = new VDom("#dddds");
+    console.log("12",Ti.cache());
+    Ti.extend({
+        render:function (options) {
+            return new VDom(options);
+        }
+    });
+    return VDom;
+});
 define('Ti',[
     "./core",
-    "./core/cache"
+    "./core/cache",
+    "./dom/vdom"
 ], function (Ti) {
     "use strict";
     return Ti;
