@@ -6,9 +6,20 @@
     <script src="./require.js"></script>
 </head>
 <body>
-<div id="test">
+    <div id="container">
+        <!--dsfdsf-->
+        <h1 style="color:red">simple virtual dom</h1>
+        <p>hello world</p>
+        <ul>
+            <li>item #1</li>
+            <li>item #2</li>
+        </ul>
+        <div class="btn">
+            测试内容
 
-</div>
+            <div class="about">sub</div>
+        </div>
+    </div>
 </body>
 <script>
     require.config({
@@ -17,7 +28,7 @@
             "Ti": "ti",
         }
     });
-
+    console.log(document.querySelector("#container"));
     require(['Ti'],function (Ti) {
         var a = Ti.render({
             el:"#test",
