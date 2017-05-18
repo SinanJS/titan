@@ -2,11 +2,13 @@
  * Created by zpc on 2017/5/18.
  */
 define(["../core"],function (Ti) {
-    var VElement = function (tagName,props,children) {
+    var VElement = function (tagName,props,children,textContent) {
         this.tagName = tagName;
         this.props = (typeof props == "object" && !Ti.isArray(props))?props : {};
         this.children = (children && Ti.isArray(children))?children:[];
-
+        if(textContent){
+            this.textContent = Ti.trim(textContent);
+        }
     };
     VElement.prototype = {
         getAttr:function (name) {

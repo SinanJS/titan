@@ -9,7 +9,7 @@
     <div id="container">
         <!--dsfdsf-->
         <h1 style="color:red">simple virtual dom</h1>
-        <p>hello world</p>
+        <p id="title">hello world</p>
         <ul>
             <li>item #1</li>
             <li>item #2</li>
@@ -23,18 +23,17 @@
 </body>
 <script>
     require.config({
-        baseUrl: "../dist",
+        baseUrl: "../src",
         paths: {
-            "Ti": "ti",
+            "Ti": "Ti",
         }
     });
     console.log(document.querySelector("#container"));
     require(['Ti'],function (Ti) {
-        var a = Ti.render({
-            el:"#test",
-
+        var vd = Ti.render({
+            el:"#container"
         });
-
+        console.log(vd.vdomTree);
     });
 </script>
 </html>
