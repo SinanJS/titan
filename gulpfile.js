@@ -10,7 +10,7 @@ gulp.task("build", function () {
             optimize: 'none',
             prefixMode: 'standard'
         }))
-       /* .pipe(Amdclean.gulp({
+        /*.pipe(Amdclean.gulp({
             'prefixMode': 'standard'
         }))*/
         .pipe(rename("ti.js"))

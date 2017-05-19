@@ -9,9 +9,9 @@
     <div id="container">
         <!--dsfdsf-->
         <h1 style="color:red">simple virtual dom</h1>
-        <p id="title" t-text="say">hello world</p>
+        <p id="title" t-text="fire.name.dd">hello world</p>
         <ul>
-            <li>item #1</li>
+            <li t-text="arr[2]">item #1</li>
             <li>item #2</li>
         </ul>
         <div class="btn">
@@ -33,7 +33,13 @@
         var vd = Ti.render({
             el:"#container",
             data:{
-                say:"你好，世界"
+                say:"你好，世界",
+                fire:{
+                    name:{
+                        dd:"xxxx"
+                    }
+                },
+                arr:[1,12,434]
             }
         });
 

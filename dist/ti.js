@@ -254,12 +254,40 @@ define('dom/velement',["../core"],function (Ti) {
     return VElement;
 });
 /**
+ * Created by zpc on 2017/5/19.
+ */
+define('dom/directive',[
+    "../core",
+    "./velement"
+], function (Ti,VElement) {
+    var drtUtils = {
+        _data:{},
+        prefix: "t",
+        directives: {
+            text: function (children,prop) {
+                var text = drtUtils._data[prop].toString();
+                console.log(text)
+                var vEl = new VElement("#text",[],{},text);
+                return [vEl];
+            }
+        },
+        hocks: {},
+        extend: function () {
+
+        }
+
+    };
+    return drtUtils;
+});
+/**
  * Created by zpc on 2017/5/17.
  */
 define('dom/vdom',["../core",
         "../core/cache",
-        "./velement"],
-    function (Ti, Cache, VElement) {
+        "./velement",
+        "./directive"
+    ],
+    function (Ti, Cache, VElement, drtUtils) {
         Ti.vDom = {};
         var VDom = function (options) {
             this.el = options.el;
@@ -295,6 +323,7 @@ define('dom/vdom',["../core",
                         var props = {};
                         var attrs = $el.attributes;
                         var children = [];
+                        // 获取节点属性
                         for (var j = 0; j < attrs.length; j++) {
                             props[attrs[j].nodeName] = attrs[j].nodeValue;
                         }
@@ -326,16 +355,31 @@ define('dom/vdom',["../core",
                 if (!vDomTree) {
                     return;
                 }
+                var _this = this;
                 var _node;
                 var tagName = vDomTree.tagName;
                 var props = vDomTree.props;
                 var children = vDomTree.children;
                 var textContent = vDomTree.textContent || "";
+                // 将$data值传给drtUtils;
+                drtUtils._data = this.$data;
                 if (vDomTree.tagName !== "#text") {
                     _node = document.createElement(tagName);
-                    for (var name in props) {
-                        _node.setAttribute(name, props[name]);
-                    }
+                    Ti.each(props, function (name, prop) {
+                        var arr = name.split("-");
+                        if (arr && arr[0] == drtUtils.prefix) {
+                            var drt = arr[1];
+                            /* 将$data传给directive的具体方法
+                            * 合理性改进，此处调用方式有待商榷
+                            * 指令系统，实际上是在介入对当前VElement对象的children
+                            * 修改未来渲染的children，实现绑定
+                            * */
+                            children = drtUtils.directives[drt](children,prop);
+                        }else{
+                            _node.setAttribute(name, prop);
+                        }
+                    });
+
                     if (children.length > 0) {
                         var _this = this;
                         Ti.each(children, function (index, item) {
@@ -360,7 +404,7 @@ define('dom/vdom',["../core",
 define('Ti',[
     "./core",
     "./core/cache",
-    "./dom/vdom"
+    "./dom/vdom",
 ], function (Ti) {
     "use strict";
     return Ti;

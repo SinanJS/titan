@@ -88,7 +88,11 @@ define(["../core",
                         var arr = name.split("-");
                         if (arr && arr[0] == drtUtils.prefix) {
                             var drt = arr[1];
-                            // 将$data传给directive的具体方法
+                            /* 将$data传给directive的具体方法
+                            * 合理性改进，此处调用方式有待商榷
+                            * 指令系统，实际上是在介入对当前VElement对象的children
+                            * 修改未来渲染的children，实现绑定
+                            * */
                             children = drtUtils.directives[drt](children,prop);
                         }else{
                             _node.setAttribute(name, prop);
