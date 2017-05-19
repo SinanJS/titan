@@ -9,7 +9,7 @@
     <div id="container">
         <!--dsfdsf-->
         <h1 style="color:red">simple virtual dom</h1>
-        <p id="title">hello world</p>
+        <p id="title" t-text="say">hello world</p>
         <ul>
             <li>item #1</li>
             <li>item #2</li>
@@ -31,7 +31,10 @@
     console.log(document.querySelector("#container"));
     require(['Ti'],function (Ti) {
         var vd = Ti.render({
-            el:"#container"
+            el:"#container",
+            data:{
+                say:"你好，世界"
+            }
         });
 
         console.log(Ti.getCache(Ti.vDom).id_container);
