@@ -81,6 +81,11 @@ define('core',[], function () {
                     }
                 }
             }
+        },
+        trim:function(str){
+            if(typeof str==="string"){
+                return str.replace(/(^\s*)|(\s*$)/g, "");
+            }
         }
     });
 
@@ -134,6 +139,7 @@ define('core/cache',["../core"], function (Ti) {
             } else if (arguments.length > 2 && typeof key == "string") {
                 cache[key] = value;
             }
+            this.cache[account] = cache;
             return this;
         },
         get: function (owner, key) {
@@ -142,7 +148,7 @@ define('core/cache',["../core"], function (Ti) {
                 return false;
             }
             var cache = this.cache[account];
-            if (typeof key == "string") {
+            if (key && typeof key == "string") {
                 return cache[key];
             } else {
                 return cache;
@@ -204,32 +210,116 @@ define('core/cache',["../core"], function (Ti) {
     return Cache;
 });
 /**
+ * Created by zpc on 2017/5/18.
+ */
+define('dom/velement',["../core"],function (Ti) {
+    var VElement = function (tagName,props,children,textContent) {
+        this.tagName = tagName;
+        this.props = (typeof props == "object" && !Ti.isArray(props))?props : {};
+        this.children = (children && Ti.isArray(children))?children:[];
+        if(textContent){
+            this.textContent = Ti.trim(textContent);
+        }
+    };
+    VElement.prototype = {
+        getAttr:function (name) {
+            return this.props[name] || undefined;
+        },
+        setAttr:function (name,value) {
+            try {
+                this.props[name] = value;
+            }catch (e){
+                console.log(e);
+            }
+        },
+        delAttr:function (name) {
+            try{
+                if(this.props[name]){
+                    var prop = this.props[name];
+                    delete this.props[name];
+                    return prop;
+                }else{
+                    return "";
+                }
+
+            }catch (e){
+                console.log(e);
+            }
+        },
+        hasAttr:function (name) {
+            return (name in this.props);
+        }
+    };
+    return VElement;
+});
+/**
  * Created by zpc on 2017/5/17.
  */
-define('dom/vdom',["../core","../core/cache"],function (Ti,Cache) {
+define('dom/vdom',["../core",
+        "../core/cache",
+        "./velement"],
+function (Ti, Cache,VElement) {
+    Ti.vDom = {};
     var VDom = function (options) {
-        this.el = document.querySelector(options.el);
+        this.el = options.el;
+        this.$el = document.querySelector(options.el);
         this.$data = options.data;
-        this.options = options;
+        return this.init();
     };
-    /*
-    * VDOM的几个工作阶段
-    * 1.扫描预定义DOM结构
-    * 2.解析指令，结合$data属性，构建VDOM Object
-    * 3.将VDOM Object存入缓存
-    * 4.渲染页面
-    * */
     VDom.prototype = {
+        init:function () {
+            var vdomTree = this.scanRealDom(this.$el);
+            Ti.setCache(Ti.vDom,this.el,vdomTree);
+        },
+        // 扫描el下的真实DOM结构，生成基本VDOM树
+        //https://developer.mozilla.org/zh-CN/docs/Web/API/Node/nodeType
+        scanRealDom:function ($el) {
+            switch ($el.nodeType){
+                // 元素节点
+                case 1:
+                    var tagName = $el.tagName.toLocaleLowerCase();
+                    var props = {};
+                    var attrs = $el.attributes;
+                    var children = [];
+                    for(var j = 0;j<attrs.length;j++){
+                        props[attrs[j].nodeName] = attrs[j].nodeValue;
+                    }
+                    // 子孙
+                    if($el.childNodes.length>0){
+                        for(var c = 0;c<$el.childNodes.length;c++){
+                            // 递归生成虚拟dOM
+                            children.push(this.scanRealDom($el.childNodes[c]));
+                        }
+                    }
+                    v_node = new VElement(tagName,props,children);
+                    return v_node;
+                    break;
+                // 文本节点
+                case 3:
+                    return new VElement("#text",{},[],$el.textContent);
+                    break;
+                // 注释节点
+                case 8:
+                    return false;
+                    break;
+                // document节点
+                case 9:
+                    return false;
+                    break;
+                default:
+                    return false;
+                    break;
+            }
 
-    };
+        },
+        render:function () {
 
-
-    Ti.extend({
-        render:function (options) {
-            return new VDom(options);
-        }
-    });
-    return VDom;
+        },
+    }
+    
+    Ti.render = function (options) {
+        return new VDom(options);
+    }
 });
 define('Ti',[
     "./core",

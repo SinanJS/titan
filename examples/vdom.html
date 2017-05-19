@@ -16,10 +16,10 @@
         </ul>
         <div class="btn">
             测试内容
-
             <div class="about">sub</div>
         </div>
     </div>
+    <div id="clone"></div>
 </body>
 <script>
     require.config({
@@ -33,7 +33,8 @@
         var vd = Ti.render({
             el:"#container"
         });
-        console.log(vd.vdomTree);
+
+        console.log(Ti.getCache(Ti.vDom).id_container);
     });
 </script>
 </html>

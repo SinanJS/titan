@@ -60,6 +60,7 @@ define([], function () {
         noop: function () {
         },
         //迭代器，若回调函数返回false，则停止迭代
+        //callback参数：索引index,项目item
         each: function (obj, cb) {
             if (!obj) {
                 return;
@@ -74,8 +75,8 @@ define([], function () {
                     }
                 }
             } else {
-                for (var item in obj) {
-                    isContinue = cb.call(obj[item], item, obj[item]);
+                for (var index in obj) {
+                    isContinue = cb.call(obj[index], index, obj[index]);
                     if(isContinue == false){
                         break;
                     }

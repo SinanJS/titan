@@ -42,6 +42,7 @@ define(["../core"], function (Ti) {
             } else if (arguments.length > 2 && typeof key == "string") {
                 cache[key] = value;
             }
+            this.cache[account] = cache;
             return this;
         },
         get: function (owner, key) {
@@ -50,7 +51,7 @@ define(["../core"], function (Ti) {
                 return false;
             }
             var cache = this.cache[account];
-            if (typeof key == "string") {
+            if (key && typeof key == "string") {
                 return cache[key];
             } else {
                 return cache;
