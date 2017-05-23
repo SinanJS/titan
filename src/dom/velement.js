@@ -6,6 +6,7 @@ define(["../core"],function (Ti) {
         this.tagName = tagName;
         this.props = (typeof props == "object" && !Ti.isArray(props))?props : {};
         this.children = (children && Ti.isArray(children))?children:[];
+        //this.scope = scope;
         if(textContent){
             this.textContent = Ti.trim(textContent);
         }

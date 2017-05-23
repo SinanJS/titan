@@ -10,9 +10,8 @@
         <!--dsfdsf-->
         <h1 style="color:red">simple virtual dom</h1>
         <p id="title" t-text="fire.name.dd">hello world</p>
-        <ul>
-            <li t-text="arr[2]">item #1</li>
-            <li>item #2</li>
+        <ul t-for="item in arr">
+            <li>item #1</li>
         </ul>
         <div class="btn">
             测试内容
@@ -39,10 +38,9 @@
                         dd:"xxxx"
                     }
                 },
-                arr:[1,12,434]
+                arr:[1,12,"哈哈"]
             }
         });
-
         console.log(Ti.getCache(Ti.vDom).id_container);
     });
 </script>

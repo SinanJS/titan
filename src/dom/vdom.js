@@ -32,6 +32,9 @@ define(["../core",
                 console.log(this._render(vDomTree));
                 // vDomTree = null;
             },
+            _addWatcher:function () {
+
+            },
             // 扫描el下的真实DOM结构，生成基本VDOM树
             // https://developer.mozilla.org/zh-CN/docs/Web/API/Node/nodeType
             _scanRealDom: function ($el) {
@@ -44,7 +47,9 @@ define(["../core",
                         var children = [];
                         // 获取节点属性
                         for (var j = 0; j < attrs.length; j++) {
-                            props[attrs[j].nodeName] = attrs[j].nodeValue;
+                            var attr_name = attrs[j].nodeName;
+                            var attr_value = attrs[j].nodeValue;
+                            props[attr_name] = attr_value;
                         }
                         // 子孙
                         if ($el.childNodes.length > 0) {
@@ -67,7 +72,6 @@ define(["../core",
                         return false;
                         break;
                 }
-
             },
             //根据虚拟DOM树生成节点
             _createNode: function (vDomTree) {
@@ -86,17 +90,18 @@ define(["../core",
                     _node = document.createElement(tagName);
                     Ti.each(props, function (name, prop) {
                         var arr = name.split("-");
-                        if (arr && arr[0] == drtUtils.prefix) {
+                       /* if (arr && arr[0] == drtUtils.prefix) {
                             var drt = arr[1];
-                            /* 将$data传给directive的具体方法
+                            /!* 将$data传给directive的具体方法
                             * 合理性改进，此处调用方式有待商榷
                             * 指令系统，实际上是在介入对当前VElement对象的children
                             * 修改未来渲染的children，实现绑定
-                            * */
+                            * *!/
                             children = drtUtils.directives[drt](children,prop);
                         }else{
                             _node.setAttribute(name, prop);
-                        }
+                        }*/
+                        _node.setAttribute(name, prop);
                     });
 
                     if (children.length > 0) {
