@@ -10,9 +10,9 @@ gulp.task("build", function () {
             optimize: 'none',
             prefixMode: 'standard'
         }))
-        /*.pipe(Amdclean.gulp({
+        .pipe(Amdclean.gulp({
             'prefixMode': 'standard'
-        }))*/
+        }))
         .pipe(rename("ti.js"))
         .pipe(gulp.dest('dist'));                            //- 映射文件输出目录
 });
