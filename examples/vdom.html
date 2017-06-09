@@ -9,17 +9,16 @@
     <div id="container">
         <!--dsfdsf-->
         <h1 style="color:red">simple virtual dom</h1>
-        <p id="title">hello world</p>
-        <ul>
+        <p id="title" t-text="fire.name.dd">hello world</p>
+        <ul t-for="item in arr">
             <li>item #1</li>
-            <li>item #2</li>
         </ul>
         <div class="btn">
             测试内容
-
             <div class="about">sub</div>
         </div>
     </div>
+    <div id="clone"></div>
 </body>
 <script>
     require.config({
@@ -31,9 +30,18 @@
     console.log(document.querySelector("#container"));
     require(['Ti'],function (Ti) {
         var vd = Ti.render({
-            el:"#container"
+            el:"#container",
+            data:{
+                say:"你好，世界",
+                fire:{
+                    name:{
+                        dd:"xxxx"
+                    }
+                },
+                arr:[1,12,"哈哈"]
+            }
         });
-        console.log(vd.vdomTree);
+        console.log(Ti.getCache(Ti.vDom).id_container);
     });
 </script>
 </html>

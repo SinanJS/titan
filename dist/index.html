@@ -2,10 +2,37 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-    <script src="Ti.js"></script>
+    <title>Vdom</title>
+    <script src="./ti.js"></script>
 </head>
 <body>
+<div id="container">
+    <h1 style="color:red">simple virtual dom</h1>
+    <p id="title" t-text="say">hello world</p>
+    <ul>
+        <li>item #1</li>
+        <li>item #2</li>
+    </ul>
+    <div class="btn">
+        测试内容
+        <div class="about">sub</div>
+    </div>
+</div>
 
+<div id="clone"></div>
 </body>
+<script>
+
+    (function (Ti) {
+        var vd = Ti.render({
+            el: "#container",
+            data: {
+                say: "你好，世界",
+            }
+        });
+        // 打印出 #container的虚拟DOM节点
+        console.log(Ti.getCache(Ti.vDom).id_container);
+    })(Ti);
+
+</script>
 </html>

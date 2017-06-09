@@ -1,7 +1,8 @@
 define([
     "./core",
     "./core/cache",
-    "./dom/vdom"
+    "./dom/vdom",
+    "./core/promise"
 ], function (Ti) {
     "use strict";
     return Ti;

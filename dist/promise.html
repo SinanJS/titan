@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vdom</title>
+    <script src="./ti.js"></script>
+</head>
+<body>
+<div id="container">
+    <h1 style="color:red">simple virtual dom</h1>
+    <p id="title" t-text="say">hello world</p>
+    <ul>
+        <li>item #1</li>
+        <li>item #2</li>
+    </ul>
+    <div class="btn">
+        测试内容
+        <div class="about">sub</div>
+    </div>
+</div>
+
+<div id="clone"></div>
+</body>
+<script>
+
+    (function (Ti) {
+        /*function foo(a) {
+
+            var promise = new Ti.Promise(function (resolve, reject) {
+                setTimeout(function () {
+                    if (a > 0) {
+                        resolve(a);
+                    } else {
+                        reject(a);
+                    }
+                }, 2000);
+            });
+            return promise;
+        }
+
+        foo(-1).then(function (a) {
+            console.log("success", a + 1);
+        }).catch(function (a) {
+            console.log("error", a);
+        });
+        foo(11).then(function (a) {
+            console.log("success", a + 1);
+        }, function (a) {
+            console.log("error", a);
+        });
+
+
+
+        function foo2(a) {
+
+            var promise = new Ti.Promise(function (resolve, reject) {
+                throw "ooops";
+            });
+            return promise;
+        }
+        foo2().catch(function (e) {
+            console.log(e);
+        });
+
+
+
+        function foo3(a) {
+
+            var promise = new Ti.Promise(function (resolve, reject) {
+                setTimeout(function () {
+                    resolve(a);
+                },1000)
+            });
+            return promise;
+        }
+        foo3().then(function () {
+            throw "Err:haha"
+        }).catch(function (e) {
+            console.log(e+'fsdf');
+        });*/
+       // console.log(foo2(1).resolve);
+        /*        function foo(a) {
+         ++a;
+         console.log(a);
+         var promise = new Ti.Promise(function (resolve, reject) {
+         setTimeout(function () {
+         if (a > 0) {
+         resolve(a);
+         } else {
+         reject(a);
+         }
+         }, 2000);
+         });
+         return promise;
+         }
+         function foo2(a) {
+         ++a;
+         console.log(a);
+         var promise = new Ti.Promise(function (resolve, reject) {
+         setTimeout(function () {
+         if (a > 1) {
+         resolve(a);
+         } else {
+         reject(a);
+         }
+         }, 2000);
+         });
+         return promise;
+         }
+         function foo3(a) {
+         ++a;
+         console.log(a);
+         var promise = new Ti.Promise(function (resolve, reject) {
+         setTimeout(function () {
+         if (a > 2) {
+         resolve(a);
+         } else {
+         reject(a);
+         }
+         }, 2000);
+         });
+         return promise;
+         }
+         function foo4(a) {
+         ++a;
+         console.log(a);
+         var promise = new Ti.Promise(function (resolve, reject) {
+         setTimeout(function () {
+         if (a > 3) {
+         resolve(a);
+         } else {
+         reject(a);
+         }
+         }, 2000);
+         });
+         return promise;
+         }
+
+         //链式调用各个处理函数
+         foo(1).then(function (a) {
+         return foo2(a);
+         })
+         .then(function (a) {
+         return foo3(a);
+         })
+         .then(function (a) {
+         return foo4(a);
+         })*/
+
+        //all 测试
+        var Promise = Ti.Promise;
+        function foo(a){
+            return new Promise(function(resolve,reject){
+                setTimeout(function(){
+                    if(a>0){
+                        resolve(a);
+                    }else{
+                        reject(a);
+                    }
+                },1000);
+            });
+        }
+
+        var f1 = new Promise(function(resolve,reject){
+            setTimeout(function(){
+                resolve(1)
+            },1000);
+        });
+        var f2 = new Promise(function(resolve,reject){
+            setTimeout(function(){
+                resolve(2);
+            },100);
+        });
+        var f3 = new Promise(function(resolve,reject){
+            setTimeout(function(){
+                resolve(3);
+            },100);
+        });
+
+        Promise.all([f1,"sdf"]).then(function(val){
+            console.log("OK",val)
+        }).catch(function(val){
+            console.log("Err",val);
+        });
+
+    })(Ti);
+
+</script>
+</html>
