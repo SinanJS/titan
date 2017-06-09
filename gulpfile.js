@@ -14,5 +14,9 @@ gulp.task("build", function () {
             'prefixMode': 'standard'
         }))
         .pipe(rename("ti.js"))
-        .pipe(gulp.dest('dist'));                            //- 映射文件输出目录
+        .pipe(gulp.dest('dist')); //- 映射文件输出目录
+});
+gulp.task('watch', ['build'],function() {
+    gulp.watch('./src/**/*.js', ['build']);
+
 });

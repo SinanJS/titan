@@ -14,6 +14,7 @@ define(["../core"], function (Ti) {
     var FULFILLED = 1; // 成功
     var REJECTED = 2;  // 失败
     var Promise = function (fn) {
+
         // 状态机，存储上面3种状态
         this.state = PENDING;
         // 存储成功或失败的结果值
@@ -30,25 +31,31 @@ define(["../core"], function (Ti) {
         var _this = this;
 
         function resolve(result) {
-            if (_this.state === PENDING) {
-                _this.state = FULFILLED;
-                _this.value = result;
-                for (var i = 0; i < _this.handlers.length; i++) {
-                    _this.handlers[i](result); // 异步等待结束后，调用then里定义好的resolve函数
+            // 保证异步
+            setTimeout(function () {
+                if (_this.state === PENDING) {
+                    _this.state = FULFILLED;
+                    _this.value = result;
+                    for (var i = 0; i < _this.handlers.length; i++) {
+                        _this.handlers[i](result); // 异步等待结束后，调用then里定义好的resolve函数
+                    }
                 }
-            }
+            }, 0);
         }
 
         // 异步任务失败后的处理
         function reject(err) {
-            if (_this.state === PENDING) {
-                _this.state = REJECTED;
-                _this.value = err;
-                for (var i = 0; i < _this.rejectHandelers.length; i++) {
-                    _this.rejectHandelers[i](err);  // 异步等待结束后，调用then里定义好的reject函数
+            setTimeout(function () {
+                if (_this.state === PENDING) {
+                    _this.state = REJECTED;
+                    _this.value = err;
+                    for (var i = 0; i < _this.rejectHandelers.length; i++) {
+                        _this.rejectHandelers[i](err);  // 异步等待结束后，调用then里定义好的reject函数
+                    }
                 }
-            }
+            }, 0);
         }
+
 
         try {
             fn && fn(resolve, reject);
@@ -61,7 +68,6 @@ define(["../core"], function (Ti) {
     };
     Promise.prototype.then = function (onResolved, onRejected) {
         var _this = this;
-
         return new Promise(function (resolve, reject) {
             var onResolvedFade = function (val) {
                 try {
@@ -71,9 +77,10 @@ define(["../core"], function (Ti) {
                 }
                 if (Promise.isPromise(result)) {
                     // 当回调函数返回值也是promise的时候
-                    result.then(function (val) {
-                        resolve(val);
-                    });
+                    /*result.then(function (val) {
+                     resolve(val);
+                     });*/
+                    resolve(result.value);
                 } else {
                     resolve(result);//改变状态，修改this.value
                 }
@@ -85,14 +92,9 @@ define(["../core"], function (Ti) {
             // 将回调方法分别添加到数组中
             _this.handlers.push(onResolvedFade);
             _this.rejectHandelers.push(onRejectedFade);
-
-            if (_this.state === FULFILLED) {
-                onRejectedFade(_this.value);
-            } else if (_this.state === REJECTED) {
-                onRejectedFade(_this.value);
-            }
-
-
+            /*if(this.state==PENDING){
+             onRejectedFade(_this.value);
+             }*/
         });
 
     };
@@ -127,14 +129,9 @@ define(["../core"], function (Ti) {
                         reject(val);
                     });
                 } else {
-                    valIndex.push(index);
-                    values[index] = item;
-                    if (valIndex.length !== arr.length) {
-                        canWeDo = false;
-                    }
-                    if (canWeDo) {
-                        resolve(values);
-                    }
+                    // 若非Promise对象，则先封装成Promise对象
+                    item = Promise.resolve(item);
+                    doPromise(item);
                 }
             }
 
@@ -146,13 +143,36 @@ define(["../core"], function (Ti) {
         });
     };
     Promise.race = function (arr) {
-        return arr;
+        if (!Array.isArray(arr) || !(arr instanceof Array)) {
+            return new TypeError("the argument of Promise.race must be Array");
+        }
     };
-    Promise.resolve = function (arr) {
 
+    Promise.resolve = function (value) {
+        if (Promise.isPromise(value)) {
+            return value;
+        } else if (!!value.then && typeof value.then == "function") {
+            /* 但如果这个值是个thenable（即带有then方法），返回的promise会“跟随”这个thenable的对象，
+             * 即用该值的then方法，替换Promise对象原有的then方法
+             * mdn:https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise/resolve
+             */
+            var promise = new Promise(function (resolve, reject) {
+                resolve(value);
+            });
+            promise.then = value.then;
+            return promise;
+        } else {
+            return new Promise(function (resolve, reject) {
+                resolve(value);
+            });
+        }
     };
-    Promise.reject = function () {
 
+    // Promise.reject(reason)方法返回一个用reason拒绝的Promise。
+    Promise.reject = function (reason) {
+        return new Promise(function(resolve,reject){
+            reject(reason);
+        });
     };
     Ti.extend({
         Promise: Promise
