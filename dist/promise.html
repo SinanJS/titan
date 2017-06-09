@@ -24,7 +24,7 @@
 <script>
 
     (function (Ti) {
-        function foo(a) {
+        /*function foo(a) {
 
             var promise = new Ti.Promise(function (resolve, reject) {
                 setTimeout(function () {
@@ -77,8 +77,8 @@
             throw "Err:haha"
         }).catch(function (e) {
             console.log(e+'fsdf');
-        });
-
+        });*/
+       // console.log(foo2(1).resolve);
         /*        function foo(a) {
          ++a;
          console.log(a);
@@ -146,6 +146,43 @@
          .then(function (a) {
          return foo4(a);
          })*/
+
+        //all 测试
+        var Promise = Ti.Promise;
+        function foo(a){
+            return new Promise(function(resolve,reject){
+                setTimeout(function(){
+                    if(a>0){
+                        resolve(a);
+                    }else{
+                        reject(a);
+                    }
+                },1000);
+            });
+        }
+
+        var f1 = new Promise(function(resolve,reject){
+            setTimeout(function(){
+                resolve(1)
+            },1000);
+        });
+        var f2 = new Promise(function(resolve,reject){
+            setTimeout(function(){
+                resolve(2);
+            },100);
+        });
+        var f3 = new Promise(function(resolve,reject){
+            setTimeout(function(){
+                resolve(3);
+            },100);
+        });
+
+        Promise.all([f1,"sdf"]).then(function(val){
+            console.log("OK",val)
+        }).catch(function(val){
+            console.log("Err",val);
+        });
+
     })(Ti);
 
 </script>

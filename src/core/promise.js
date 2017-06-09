@@ -66,7 +66,7 @@ define(["../core"], function (Ti) {
             var onResolvedFade = function (val) {
                 try {
                     var result = onResolved ? onResolved(val) : val;
-                }catch (e){
+                } catch (e) {
                     onRejectedFade(e);
                 }
                 if (Promise.isPromise(result)) {
@@ -102,7 +102,48 @@ define(["../core"], function (Ti) {
     };
 
     Promise.all = function (arr) {
-        return arr;
+        if (!Array.isArray(arr) || !(arr instanceof Array)) {
+            return new TypeError("the argument of Promise.all must be Array");
+        }
+        return new Promise(function (resolve, reject) {
+            var values = [];
+            var valIndex = [];
+
+            function doPromise(index) {
+                var canWeDo = true;
+                if (Promise.isPromise(item)) {
+                    item.then(function (val) {
+                        // Promise执行结束后,且成功，状态变为resolved后，进入这里
+                        values[index] = val; //保证返回值的顺序与arr的顺序一致
+                        valIndex.push(index); //如果不是所有的项目都返回成功状态，则不准resolve
+                        if (valIndex.length !== arr.length) {
+                            canWeDo = false;
+                        }
+                        if (canWeDo) {
+                            resolve(values);
+                        }
+                    }).catch(function (val) {
+                        // Promise执行结束后,且失败，状态变为rejected后，进入这里
+                        reject(val);
+                    });
+                } else {
+                    valIndex.push(index);
+                    values[index] = item;
+                    if (valIndex.length !== arr.length) {
+                        canWeDo = false;
+                    }
+                    if (canWeDo) {
+                        resolve(values);
+                    }
+                }
+            }
+
+            for (var i = 0; i < arr.length; i++) {
+                var item = arr[i];
+                doPromise(i, item);
+            }
+
+        });
     };
     Promise.race = function (arr) {
         return arr;
