@@ -571,7 +571,7 @@ core_promise = function (Ti) {
       });
     }
   };
-  // Promise.reject(reason)方法返回一个用reason拒绝的Promise
+  // Promise.reject(reason)方法返回一个用reason拒绝的Promise。
   Promise.reject = function (reason) {
     return new Promise(function (resolve, reject) {
       reject(reason);

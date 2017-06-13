@@ -24,62 +24,63 @@
 <script>
 
     (function (Ti) {
+        var Promise = Ti.Promise;
         /*function foo(a) {
 
-            var promise = new Ti.Promise(function (resolve, reject) {
-                setTimeout(function () {
-                    if (a > 0) {
-                        resolve(a);
-                    } else {
-                        reject(a);
-                    }
-                }, 2000);
-            });
-            return promise;
-        }
+         var promise = new Ti.Promise(function (resolve, reject) {
+         setTimeout(function () {
+         if (a > 0) {
+         resolve(a);
+         } else {
+         reject(a);
+         }
+         }, 2000);
+         });
+         return promise;
+         }
 
-        foo(-1).then(function (a) {
-            console.log("success", a + 1);
-        }).catch(function (a) {
-            console.log("error", a);
-        });
-        foo(11).then(function (a) {
-            console.log("success", a + 1);
-        }, function (a) {
-            console.log("error", a);
-        });
-
-
-
-        function foo2(a) {
-
-            var promise = new Ti.Promise(function (resolve, reject) {
-                throw "ooops";
-            });
-            return promise;
-        }
-        foo2().catch(function (e) {
-            console.log(e);
-        });
+         foo(-1).then(function (a) {
+         console.log("success", a + 1);
+         }).catch(function (a) {
+         console.log("error", a);
+         });
+         foo(11).then(function (a) {
+         console.log("success", a + 1);
+         }, function (a) {
+         console.log("error", a);
+         });
 
 
 
-        function foo3(a) {
+         function foo2(a) {
 
-            var promise = new Ti.Promise(function (resolve, reject) {
-                setTimeout(function () {
-                    resolve(a);
-                },1000)
-            });
-            return promise;
-        }
-        foo3().then(function () {
-            throw "Err:haha"
-        }).catch(function (e) {
-            console.log(e+'fsdf');
-        });*/
-       // console.log(foo2(1).resolve);
-        /*        function foo(a) {
+         var promise = new Ti.Promise(function (resolve, reject) {
+         throw "ooops";
+         });
+         return promise;
+         }
+         foo2().catch(function (e) {
+         console.log(e);
+         });
+
+
+
+         function foo3(a) {
+
+         var promise = new Ti.Promise(function (resolve, reject) {
+         setTimeout(function () {
+         resolve(a);
+         },1000)
+         });
+         return promise;
+         }
+         foo3().then(function () {
+         throw "Err:haha"
+         }).catch(function (e) {
+         console.log(e+'fsdf');
+         });*/
+        // console.log(foo2(1).resolve);
+        /* function foo(a) {
          ++a;
          console.log(a);
          var promise = new Ti.Promise(function (resolve, reject) {
@@ -93,6 +94,7 @@
          });
          return promise;
          }
+
          function foo2(a) {
          ++a;
          console.log(a);
@@ -107,6 +109,7 @@
          });
          return promise;
          }
+
          function foo3(a) {
          ++a;
          console.log(a);
@@ -121,6 +124,7 @@
          });
          return promise;
          }
+
          function foo4(a) {
          ++a;
          console.log(a);
@@ -134,10 +138,10 @@
          }, 2000);
          });
          return promise;
-         }
+         }*/
 
-         //链式调用各个处理函数
-         foo(1).then(function (a) {
+        //链式调用各个处理函数
+        /* foo(1).then(function (a) {
          return foo2(a);
          })
          .then(function (a) {
@@ -148,41 +152,71 @@
          })*/
 
         //all 测试
-        var Promise = Ti.Promise;
-        function foo(a){
-            return new Promise(function(resolve,reject){
-                setTimeout(function(){
-                    if(a>0){
-                        resolve(a);
-                    }else{
-                        reject(a);
-                    }
-                },1000);
-            });
-        }
 
-        var f1 = new Promise(function(resolve,reject){
-            setTimeout(function(){
+        var f1 = new Promise(function (resolve, reject) {
+            setTimeout(function () {
                 resolve(1)
-            },1000);
+            }, 1000);
         });
-        var f2 = new Promise(function(resolve,reject){
-            setTimeout(function(){
+        var f2 = new Promise(function (resolve, reject) {
+            setTimeout(function () {
                 resolve(2);
-            },100);
+            }, 100);
         });
-        var f3 = new Promise(function(resolve,reject){
-            setTimeout(function(){
-                resolve(3);
-            },100);
+        var f3 = new Promise(function (resolve, reject) {
+            setTimeout(function () {
+                resolve(33);
+            }, 100);
+        });
+        f1.then(function (val) {
+            console.log(val);
+        });
+        /* f2.then(function(val) {
+         return new Promise(function(resolve,reject){
+         if(val>0){
+         resolve(val)
+         }
+         });
+         }).then(function(val){
+         console.log(val)
+         });*/
+
+        Promise.all([f1, f2, f3]).then(function (val) {
+            console.log("OK", val);
+        }).catch(function (val) {
+            console.log("Err", val);
         });
 
-        Promise.all([f1,"sdf"]).then(function(val){
-            console.log("OK",val)
-        }).catch(function(val){
-            console.log("Err",val);
+        var original = Promise.resolve(true);
+        var cast = Promise.resolve(original);
+        cast.then(function (v) {
+            console.log(v); // true
+        });
+        // Resolve一个thenable对象
+        var p1 = Promise.resolve({
+            then: function (onFulfill, onReject) {
+                onFulfill("fulfilled!");
+            }
+        });
+        console.log(p1 instanceof Promise) // true, 这是一个Promise对象
+
+        p1.then(function (v) {
+            console.log(v); // 输出"fulfilled!"
+        }, function (e) {
+            // 不会被调用
         });
 
+        Promise.reject("测试静态拒绝").then(function(reason) {
+            // 未被调用
+        }, function(reason) {
+            console.log(reason); // "测试静态拒绝"
+        });
+
+        Promise.reject(new Error("fail")).then(function(error) {
+            // 未被调用
+        }, function(error) {
+            console.log(error); // 堆栈跟踪
+        });
     })(Ti);
 
 </script>

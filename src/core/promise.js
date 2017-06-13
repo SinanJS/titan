@@ -133,6 +133,7 @@ define(["../core"], function (Ti) {
                     // 若非Promise对象，则先封装成Promise对象
                     item = Promise.resolve(item);
                     doPromise(index, item);
+
                 }
             }
 
@@ -197,9 +198,9 @@ define(["../core"], function (Ti) {
         }
     };
 
-    // Promise.reject(reason)方法返回一个用reason拒绝的Promise
+    // Promise.reject(reason)方法返回一个用reason拒绝的Promise。
     Promise.reject = function (reason) {
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve,reject){
             reject(reason);
         });
     };
