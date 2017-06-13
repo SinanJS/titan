@@ -419,23 +419,28 @@ core_promise = function (Ti) {
     // 异步任务成功后的处理
     var _this = this;
     function resolve(result) {
-      if (_this.state === PENDING) {
-        _this.state = FULFILLED;
-        _this.value = result;
-        for (var i = 0; i < _this.handlers.length; i++) {
-          _this.handlers[i](result);  // 异步等待结束后，调用then里定义好的resolve函数
+      // 保证异步
+      setTimeout(function () {
+        if (_this.state === PENDING) {
+          _this.state = FULFILLED;
+          _this.value = result;
+          for (var i = 0; i < _this.handlers.length; i++) {
+            _this.handlers[i](result);  // 异步等待结束后，调用then里定义好的resolve函数
+          }
         }
-      }
+      }, 0);
     }
     // 异步任务失败后的处理
     function reject(err) {
-      if (_this.state === PENDING) {
-        _this.state = REJECTED;
-        _this.value = err;
-        for (var i = 0; i < _this.rejectHandelers.length; i++) {
-          _this.rejectHandelers[i](err);  // 异步等待结束后，调用then里定义好的reject函数
+      setTimeout(function () {
+        if (_this.state === PENDING) {
+          _this.state = REJECTED;
+          _this.value = err;
+          for (var i = 0; i < _this.rejectHandelers.length; i++) {
+            _this.rejectHandelers[i](err);  // 异步等待结束后，调用then里定义好的reject函数
+          }
         }
-      }
+      }, 0);
     }
     try {
       fn && fn(resolve, reject);
@@ -457,9 +462,10 @@ core_promise = function (Ti) {
         }
         if (Promise.isPromise(result)) {
           // 当回调函数返回值也是promise的时候
-          result.then(function (val) {
-            resolve(val);
-          });
+          /*result.then(function (val) {
+           resolve(val);
+           });*/
+          resolve(result.value);
         } else {
           resolve(result);  //改变状态，修改this.value
         }
@@ -470,12 +476,9 @@ core_promise = function (Ti) {
       };
       // 将回调方法分别添加到数组中
       _this.handlers.push(onResolvedFade);
-      _this.rejectHandelers.push(onRejectedFade);
-      if (_this.state === FULFILLED) {
-        onRejectedFade(_this.value);
-      } else if (_this.state === REJECTED) {
-        onRejectedFade(_this.value);
-      }
+      _this.rejectHandelers.push(onRejectedFade);  /*if(this.state==PENDING){
+                                                   onRejectedFade(_this.value);
+                                                   }*/
     });
   };
   // catch 实际上就是对then的部分二次封装，处理reject状态下的回调。
@@ -489,7 +492,7 @@ core_promise = function (Ti) {
     return new Promise(function (resolve, reject) {
       var values = [];
       var valIndex = [];
-      function doPromise(index) {
+      function doPromise(index, item) {
         var canWeDo = true;
         if (Promise.isPromise(item)) {
           item.then(function (val) {
@@ -509,14 +512,9 @@ core_promise = function (Ti) {
             reject(val);
           });
         } else {
-          valIndex.push(index);
-          values[index] = item;
-          if (valIndex.length !== arr.length) {
-            canWeDo = false;
-          }
-          if (canWeDo) {
-            resolve(values);
-          }
+          // 若非Promise对象，则先封装成Promise对象
+          item = Promise.resolve(item);
+          doPromise(index, item);
         }
       }
       for (var i = 0; i < arr.length; i++) {
@@ -526,11 +524,58 @@ core_promise = function (Ti) {
     });
   };
   Promise.race = function (arr) {
-    return arr;
+    if (!Array.isArray(arr) || !(arr instanceof Array)) {
+      return new TypeError('the argument of Promise.race must be Array');
+    }
+    return new Promise(function (resolve, reject) {
+      var values = [];
+      // 接收values变化，并作出反应
+      function handleValues(val, callback) {
+        values.push(val);
+        callback(val);
+      }
+      function doPromise(index, item) {
+        if (Promise.isPromise(item)) {
+          item.then(function (val) {
+            // 通知到values
+            handleValues(val, resolve);
+          }, function (val) {
+            handleValues(val, reject);
+          });
+        } else {
+          doPromise(index, Promise.resolve(item));
+        }
+      }
+      for (var i = 0; i < arr.length; i++) {
+        var item = arr[i];
+        doPromise(i, item);
+      }
+    });
   };
-  Promise.resolve = function (arr) {
+  Promise.resolve = function (value) {
+    if (Promise.isPromise(value)) {
+      return value;
+    } else if (!!value.then && typeof value.then == 'function') {
+      /* 但如果这个值是个thenable（即带有then方法），返回的promise会“跟随”这个thenable的对象，
+       * 即用该值的then方法，替换Promise对象原有的then方法
+       * mdn:https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise/resolve
+       */
+      var promise = new Promise(function (resolve, reject) {
+        resolve(value);
+      });
+      promise.then = value.then;
+      return promise;
+    } else {
+      return new Promise(function (resolve, reject) {
+        resolve(value);
+      });
+    }
   };
-  Promise.reject = function () {
+  // Promise.reject(reason)方法返回一个用reason拒绝的Promise
+  Promise.reject = function (reason) {
+    return new Promise(function (resolve, reject) {
+      reject(reason);
+    });
   };
   Ti.extend({ Promise: Promise });
   return Promise;
