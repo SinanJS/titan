@@ -1,5 +1,5 @@
 ;(function() {
-var core, core_cache, dom_velement, dom_directive, dom_vdom, core_promise, Ti;
+var core, core_cache, core_timeago_i18n, core_timeago, dom_velement, dom_directive, dom_vdom, core_promise, Ti;
 core = function () {
   var Ti = function (el) {
     return new Ti.init(el);
@@ -199,6 +199,154 @@ core_cache = function (Ti) {
   });
   return Cache;
 }(core);
+core_timeago_i18n = function () {
+  var i8n = {
+    'zh_cn': [
+      [
+        '刚刚',
+        '%s秒钟前'
+      ],
+      [
+        '1分钟前',
+        '%s分钟前'
+      ],
+      [
+        '1小时前',
+        '%s小时前'
+      ],
+      [
+        '昨天',
+        '%s天前'
+      ],
+      [
+        '1周前',
+        '%s周前'
+      ],
+      [
+        '1个月前',
+        '%s个月前'
+      ],
+      [
+        '1年前',
+        '%s年前'
+      ],
+      'yyyy年MM月dd日 hh:mm:ss'
+    ],
+    'en': [
+      [
+        'just now',
+        '%s seconds ago'
+      ],
+      [
+        '1 minute ago',
+        '%s minutes ago'
+      ],
+      [
+        '1 hour ago',
+        '%s hours ago'
+      ],
+      [
+        'yesterday',
+        '%s days ago'
+      ],
+      [
+        '1 week ago',
+        '%s weeks ago'
+      ],
+      [
+        '1 month ago',
+        '%s months ago'
+      ],
+      [
+        '1 year ago',
+        '%s years ago'
+      ],
+      'MM-dd-yyyy hh:mm:ss'
+    ]
+  };
+  function selectLanguage(lanCode) {
+    return i8n[lanCode.toLowerCase()];
+  }
+  return selectLanguage;
+}();
+core_timeago = function (Ti, i18n) {
+  var TimeAgo = function (opt) {
+    this.language = i18n(opt.i18n ? opt.i18n : 'zh_CN');
+    if (opt.fmt) {
+      this.language[7] = opt.fmt;
+    }
+    this.maxDay = opt.maxDay * 60 * 60 * 24;
+    this.nowTime = new Date().getTime();
+    this.SEC_ARR = [
+      1,
+      60,
+      60 * 60,
+      60 * 60 * 24,
+      60 * 60 * 24 * 7,
+      60 * 60 * 24 * 30,
+      60 * 60 * 24 * 365
+    ];  //秒，分，时，天，周，月，年进率
+  };
+  TimeAgo.prototype.setTxt = function (start, differ) {
+    var SEC_ARR = this.SEC_ARR;
+    var desc = '';
+    if (differ > this.maxDay) {
+      return this.format(start, this.language[7]);
+    }
+    for (var i = SEC_ARR.length; i >= 0; i--) {
+      var n = Math.floor(differ / SEC_ARR[i]);
+      if (n > 1) {
+        desc = this.language[i][1].replace('%s', n);
+        break;
+      } else if (n == 1) {
+        desc = this.language[i][0];
+        break;
+      }
+    }
+    return desc;
+  };
+  TimeAgo.prototype.diffTime = function (start) {
+    this.startTime = new Date(start).getTime();
+    var differ = Math.floor((this.nowTime - this.startTime) / 1000);
+    //相差的秒数
+    if (differ < 0) {
+      return console.warn('不能输入未来时间');
+    }
+    return this.setTxt(start, differ);
+  };
+  TimeAgo.prototype.format = function (dateObj, fmt) {
+    if (dateObj instanceof Date === false) {
+      dateObj = new Date(dateObj);
+    }
+    var o = {
+      'M+': dateObj.getMonth() + 1,
+      //月份
+      'd+': dateObj.getDate(),
+      //日
+      'h+': dateObj.getHours(),
+      //小时
+      'm+': dateObj.getMinutes(),
+      //分
+      's+': dateObj.getSeconds(),
+      //秒
+      'q+': Math.floor((dateObj.getMonth() + 3) / 3),
+      //季度
+      'S': dateObj.getMilliseconds()  //毫秒
+    };
+    if (/(y+)/.test(fmt))
+      fmt = fmt.replace(RegExp.$1, (dateObj.getFullYear() + '').substr(4 - RegExp.$1.length));
+    for (var k in o)
+      if (new RegExp('(' + k + ')').test(fmt))
+        fmt = fmt.replace(RegExp.$1, RegExp.$1.length == 1 ? o[k] : ('00' + o[k]).substr(('' + o[k]).length));
+    return fmt;
+  };
+  Ti.extend({
+    timeAgo: function (opt) {
+      return new TimeAgo(opt);
+    }
+  });
+  return TimeAgo;
+}(core, core_timeago_i18n);
 dom_velement = function (Ti) {
   var VElement = function (tagName, props, children, textContent) {
     this.tagName = tagName;

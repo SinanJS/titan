@@ -7,8 +7,7 @@
  * pending: 还没有得到肯定或者失败结果，进行中
  fulfilled: 成功的操作
  rejected: 失败的操作
- settled: 已被 fulfilled 或 rejected
- * */
+s * */
 define(["../core"], function (Ti) {
     var PENDING = 0;  // 进行中
     var FULFILLED = 1; // 成功

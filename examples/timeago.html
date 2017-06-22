@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ti-timeAgo</title>
+    <script src="../dist/ti.js"></script>
+</head>
+<body>
+
+</body>
+<script>
+var timeAgo = Ti.timeAgo({
+    maxDay:50,
+    i18n:"zh_cn"
+});
+var a = timeAgo.diffTime(new Date().getTime()-5000);
+console.log(a);
+</script>
+</html>
